@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vehicle Price Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f4f4f4;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Vehicle Price Predictor</h2>
+
+<form id="predictForm">
+    <input type="text" name="make" placeholder="Make" required>
+    <input type="text" name="model" placeholder="Model" required>
+    <input type="text" name="engine" placeholder="Engine" required>
+    <input type="number" name="cylinders" placeholder="Cylinders" required>
+    <input type="text" name="fuel" placeholder="Fuel Type" required>
+    <input type="number" name="mileage" placeholder="Mileage" required>
+    <input type="text" name="transmission" placeholder="Transmission" required>
+    <input type="text" name="trim" placeholder="Trim" required>
+    <input type="text" name="body" placeholder="Body Style" required>
+    <input type="number" name="doors" placeholder="Doors" required>
+    <input type="text" name="exterior_color" placeholder="Exterior Color" required>
+    <input type="text" name="interior_color" placeholder="Interior Color" required>
+    <input type="text" name="drivetrain" placeholder="Drivetrain" required>
+    <input type="number" name="year" placeholder="Year" required>
+
+    <button type="submit">Predict Price</button>
+</form>
+
+<div class="result" id="result"></div>
+
+<script>
+    document.getElementById("predictForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const jsonData = {};
+        formData.forEach((value, key) => {
+            jsonData[key] = isNaN(value) ? value : parseFloat(value);
+        });
+
+        fetch("/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(jsonData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            const resultDiv = document.getElementById("result");
+            if (data.predicted_price !== undefined) {
+                resultDiv.innerHTML = `Predicted Price: $${data.predicted_price}`;
+            } else {
+                resultDiv.innerHTML = `Error: ${data.error}`;
+            }
+        })
+        .catch(err => {
+            document.getElementById("result").innerHTML = `Request failed: ${err}`;
+        });
+    });
+</script>
+
+</body>
+</html>
